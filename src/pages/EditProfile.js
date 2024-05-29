@@ -9,14 +9,20 @@ const EditProfile = () => {
     const navigate = useNavigate();
     const profile = getProfile();
     const [formData, setFormData] = useState({
-        full_name: profile.full_name,
-        description: profile.description,
-        photo: profile.photo,
+        full_name: '',
+        description: '',
+        photo: '',
     });
 
     useEffect(() => {
         if (!profile) {
             navigate('/login');
+        } else {
+            setFormData({
+                full_name: profile.full_name || '',
+                description: profile.description || '',
+                photo: profile.photo || '',
+            });
         }
     }, [profile, navigate]);
 
