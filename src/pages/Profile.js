@@ -21,6 +21,7 @@ const Profile = () => {
         <div className="user-profile">
         <h1>Профиль пользователя</h1>
         <div className="profile-details">
+            <img src={profile.photo} alt="Profile" style={{maxWidth: 50 + '%'}}/>
             <p><strong>Имя:</strong> {profile.full_name}</p>
             <p><strong>Роль:</strong> {profile.role_id}</p>
             <p><strong>Логин:</strong> {profile.login}</p>

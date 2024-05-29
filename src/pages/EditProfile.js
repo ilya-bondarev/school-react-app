@@ -32,7 +32,7 @@ const EditProfile = () => {
     };
 
     const handleFileUpload = (filename) => {
-        setFormData({ ...formData, photo: filename });
+        setFormData({ ...formData, photo: `${config.apiBaseUrl}/profile-photo/${filename}` });
     };
 
     const handleSubmit = async (e) => {
@@ -73,8 +73,8 @@ const EditProfile = () => {
                     <ProfilePhotoUpload onFileUpload={handleFileUpload} />
                     {formData.photo && (
                         <div>
-                            <p>Current photo: {formData.photo}</p>
-                            <img src={`${config.apiBaseUrl}/profile-photo/${formData.photo}`} alt="Profile" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+                            <p>Current photo:</p>
+                            <img src={`${formData.photo}`} alt="Profile" style={{ maxWidth: '200px', maxHeight: '200px' }} />
                         </div>
                     )}
                 </div>

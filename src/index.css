@@ -406,6 +406,10 @@ h1 {
   margin: 8px 0;
 }
 
+.profile-details img {
+  border-radius: 50%;
+}
+
 .profile-actions {
   display: flex;
   justify-content: space-around;
