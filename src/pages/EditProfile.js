@@ -40,7 +40,7 @@ const EditProfile = () => {
     };
 
     return (
-        <div className="edit-profile">
+        <div className="edit-profile-container">
             <h1>Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
                 <div>

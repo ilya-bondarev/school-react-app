@@ -93,79 +93,87 @@ const TeachersList = () => {
 
     return (
         <div className="teachers-list-container">
-            <h1>Список учителей</h1>
-            <div className="filters">
-                <label>
-                    Минимальная оценка:
-                    <input
-                        type="number"
-                        min="1"
-                        max="5"
-                        step="0.1"
-                        value={minRating}
-                        onChange={(e) => setMinRating(e.target.value)}
-                    />
-                </label>
-                <label>
-                    Максимальное количество уроков:
-                    <input
-                        type="number"
-                        min="0"
-                        value={maxLessons}
-                        onChange={(e) => setMaxLessons(e.target.value)}
-                    />
-                </label>
-            </div>
-            <ul className="teachers-list">
-                {filteredTeachers.length ? filteredTeachers.map((teacher) => (
-                    <li key={teacher.id} className="teacher-card">
-                        <img src={teacher.photo} alt={teacher.full_name} className="teacher-photo" />
-                        <h3>{teacher.full_name}</h3>
-                        <p>{teacher.description}</p>
-                        <p>Средняя оценка: {teacher.rating}</p>
-                        <p>Проведено уроков: {formatLessonCount(teacher.lessons_amount)}</p>
-                        {profile.role_id !== 2 && (
+    <h1>Список учителей</h1>
+    <div className="filters">
+        <label>
+            Минимальная оценка:
+            <input
+                type="number"
+                min="1"
+                max="5"
+                step="0.1"
+                value={minRating}
+                onChange={(e) => setMinRating(e.target.value)}
+            />
+        </label>
+        <label>
+            Максимальное количество уроков:
+            <input
+                type="number"
+                min="0"
+                value={maxLessons}
+                onChange={(e) => setMaxLessons(e.target.value)}
+            />
+        </label>
+    </div>
+    <ul className="teachers-list">
+        {filteredTeachers.length ? filteredTeachers.map((teacher) => (
+            <li key={teacher.id} className="teacher-card">
+                <img src={teacher.photo} alt={teacher.full_name} className="teacher-photo" />
+                <div className="teacher-info">
+                    <h3>{teacher.full_name}</h3>
+                    <p>{teacher.description}</p>
+                    <p>Средняя оценка: {teacher.rating}</p>
+                    <p>Проведено уроков: {formatLessonCount(teacher.lessons_amount)}</p>
+                    {profile.role_id !== 2 && (
+                        <div className="buttons-container">
+                            <button className="select-time-button" onClick={() => handleMoreDetails(teacher.id)}>
+                                Выбрать время
+                            </button>
                             <button className="more-details-button" onClick={() => handleMoreDetails(teacher.id)}>
                                 Подробнее
                             </button>
-                        )}
-                    </li>
-                )) : <p>Учителей не найдено по текущим фильтрам.</p>}
-            </ul>
-            {selectedTeacherId && (
-                <div className="popup-overlay" onClick={closePopup}>
-                    <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-                        <h2>Записаться на урок</h2>
-                        <form onSubmit={handleSignUpForLesson}>
-                            <label>
-                                Дата и время:
-                                <input
-                                    type="datetime-local"
-                                    value={dateTime}
-                                    onChange={(e) => setDateTime(e.target.value)}
-                                    required
-                                />
-                            </label>
-                            <label>
-                                Продолжительность (минуты):
-                                <input
-                                    type="number"
-                                    min="1"
-                                    value={duration}
-                                    onChange={(e) => setDuration(e.target.value)}
-                                    required
-                                />
-                            </label>
-                            {error && <p className="error">{error}</p>}
-                            <button type="submit" disabled={isLoading}>
-                                {isLoading ? 'Записываем...' : 'Записаться'}
-                            </button>
-                        </form>
-                        <button className="close-button" onClick={closePopup}>Закрыть</button>
-                    </div>
+                        </div>
+                    )}
                 </div>
-            )}
+            </li>
+        )) : <p>Учителей не найдено по текущим фильтрам.</p>}
+    </ul>
+    {selectedTeacherId && (
+        <div className="popup-overlay" onClick={closePopup}>
+            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                <h2>Записаться на урок</h2>
+                <form onSubmit={handleSignUpForLesson}>
+                    <label>
+                        Дата и время:
+                        <input
+                            type="datetime-local"
+                            value={dateTime}
+                            onChange={(e) => setDateTime(e.target.value)}
+                            required
+                        />
+                    </label>
+                    <label>
+                        Продолжительность (минуты):
+                        <input
+                            type="number"
+                            min="1"
+                            value={duration}
+                            onChange={(e) => setDuration(e.target.value)}
+                            required
+                        />
+                    </label>
+                    {error && <p className="error">{error}</p>}
+                    <button type="submit" disabled={isLoading}>
+                        {isLoading ? 'Записываем...' : 'Записаться'}
+                    </button>
+                </form>
+                <button className="close-button" onClick={closePopup}>Закрыть</button>
+            </div>
         </div>
+    )}
+</div>
+
     );
 };
 
