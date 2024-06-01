@@ -17,7 +17,7 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         setError(''); // Clear any previous errors
-        
+
         try {
             const response = await axios.post(`${config.apiBaseUrl}/register`, {
                 login: username,
@@ -27,14 +27,14 @@ const Register = () => {
                 photo: `${config.apiBaseUrl}/profile-photo/${uploadedFileName}`,
                 description: description
             });
-            
+
             localStorage.setItem('accessToken', response.data.access_token);
             localStorage.setItem('refreshToken', response.data.refresh_token);
 
-            navigate('/profile'); 
+            navigate('/profile');
             window.location.reload();
         } catch (error) {
-            
+
             const errorMessage = error.response?.data.detail || 'Failed to register. Please try again later.';
             setError(errorMessage);
         }
@@ -49,8 +49,8 @@ const Register = () => {
             <form onSubmit={handleRegister}>
                 <label>
                     Uploaded Profile Photo
-                    {uploadedFileName && ( 
-                        <img src={`${config.apiBaseUrl}/profile-photo/${uploadedFileName}`} alt="Profile" style={{maxWidth: 50 + '%'}}/>
+                    {uploadedFileName && (
+                        <img src={`${config.apiBaseUrl}/profile-photo/${uploadedFileName}`} alt="Profile" style={{ maxWidth: 50 + '%' }} />
                     )}
                     <ProfilePhotoUpload onFileUpload={handleFileUpload} />
                 </label>

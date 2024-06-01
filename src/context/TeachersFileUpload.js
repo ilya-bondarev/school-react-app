@@ -17,15 +17,15 @@ const TeachersFileUpload = ({ onFileUpload }) => {
                 'Content-Type': 'multipart/form-data'
             }
         })
-        .then(response => {
-            setFileName(response.data.filename);
-            if (onFileUpload) {
-                onFileUpload(response.data.filename);
-            }
-        })
-        .catch(error => {
-            console.error('Error uploading file:', error);
-        });
+            .then(response => {
+                setFileName(response.data.filename);
+                if (onFileUpload) {
+                    onFileUpload(response.data.filename);
+                }
+            })
+            .catch(error => {
+                console.error('Error uploading file:', error);
+            });
     }, [onFileUpload]);
 
     const { getRootProps, getInputProps } = useDropzone({

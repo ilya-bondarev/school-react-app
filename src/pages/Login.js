@@ -17,7 +17,7 @@ const Login = () => {
             });
             localStorage.setItem('accessToken', data.access_token);
             localStorage.setItem('refreshToken', data.refresh_token);
-            
+
 
             navigate('/profile');
             /* 
@@ -26,7 +26,7 @@ const Login = () => {
             */
             setTimeout(() => {
                 window.location.reload();
-              }, 500);
+            }, 500);
         } catch (error) {
             alert('Failed to login');
             console.error(error);
@@ -34,7 +34,7 @@ const Login = () => {
     };
 
     return (
-        <div  className="login-register-container">
+        <div className="login-register-container">
             <h2>Login</h2>
             <form onSubmit={handleLogin}>
                 <label>

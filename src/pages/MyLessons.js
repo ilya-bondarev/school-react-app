@@ -13,7 +13,7 @@ const MyLessons = () => {
     const goToWhiteBoard = (lessonId, studentId, teacherId) => {
         navigate(`/whiteboard?lessonId=${lessonId}&studentId=${studentId}&teacherId=${teacherId}`);
     };
-    
+
     useEffect(() => {
         if (!profile || !profile.id) {
             console.error('Profile or profile ID is undefined');
@@ -61,8 +61,8 @@ const MyLessons = () => {
                                         <p><strong>Duration:</strong> {lesson.duration} mins</p>
                                     </div>
                                     {isJoinAvailable && (
-                                        <button 
-                                            className="join-button" 
+                                        <button
+                                            className="join-button"
                                             onClick={() => goToWhiteBoard(lesson.id, lesson.student_id, lesson.teacher_id)}
                                         >
                                             Join
