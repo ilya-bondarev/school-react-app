@@ -18,7 +18,6 @@ function AuthLinks() {
           <>
             <Link to="/profile" className="sidebar-item">Профиль</Link>
             <Link to="/lessons" className="sidebar-item">Мои уроки</Link>
-            <Link to="/payment" className="sidebar-item">Страница оплаты</Link>
           </>
         ) : (
           <Link to="/login" className="sidebar-item">Войти в систему</Link>
@@ -57,7 +56,6 @@ function App() {
                             <Route path="/teachers" element={<TeachersList />} />
                             <Route path="/whiteboard" element={<WhiteBoard />} />
                             <Route path="/lessons" element={<MyLessons />} />
-                            <Route path="/payment" element={<PaymentPage />} />
                             <Route path="/" element={<TeachersList />} exact />
                         </Routes>
                     </div>
