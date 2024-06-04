@@ -50,15 +50,22 @@ const MyLessons = () => {
                         const now = new Date();
                         const isJoinAvailable = (lessonDateTime - now) <= 60 * 60 * 1000; // 1 hour in milliseconds
 
+                        const isTeacher = profile.role_id === 2; // role_id 2 for teachers
+                        const userToShow = isTeacher ? lesson.student : lesson.teacher;
+
+                        if (!userToShow) {
+                            return null; // Skip this lesson if userToShow is undefined
+                        }
+
                         return (
                             <li key={lesson.id} className="lesson-item">
                                 <div className="lesson-card">
                                     <div className="lesson-info">
-                                        <p><strong>Lesson ID:</strong> {lesson.id}</p>
-                                        <p><strong>Teacher ID:</strong> {lesson.teacher_id}</p>
-                                        <p><strong>Student ID:</strong> {lesson.student_id}</p>
-                                        <p><strong>Date:</strong> {lessonDateTime.toLocaleString()}</p>
-                                        <p><strong>Duration:</strong> {lesson.duration} mins</p>
+                                        {userToShow.photo && (
+                                            <img src={userToShow.photo} alt={`${userToShow.full_name}'s avatar`} className="user-photo" />
+                                        )}
+                                        <p><strong>{isTeacher ? 'Student' : 'Teacher'}:</strong> {userToShow.full_name}</p>
+                                        <p><strong>Time:</strong> {lessonDateTime.toLocaleString()}</p>
                                     </div>
                                     {isJoinAvailable && (
                                         <button

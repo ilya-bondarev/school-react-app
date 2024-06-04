@@ -12,7 +12,6 @@ const Profile = () => {
         window.location.reload();
     };
 
-    //TODO: Сделать изменение профиля
     const handleProfileChange = () => {
         navigate('/edit-profile');
     };
