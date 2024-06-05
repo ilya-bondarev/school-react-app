@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { Document, Page } from 'react-pdf';
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -80,6 +81,15 @@ const WhiteBoard = () => {
       socket.current.send(JSON.stringify({ type, data }));
     }
   };
+
+  const handleEndLesson = async () => {
+    try {
+        await axios.put(`${config.apiBaseUrl}/lessons/${lessonId}/status`, { status_id: 3 });
+        navigate('/lessons')
+    } catch (error) {
+        console.error('Ошибка при обновлении статуса урока:', error);
+    }
+};
 
   const handleMouseDown = (blockId, event) => {
     const blockIndex = blocks.findIndex(block => block.id === blockId);
@@ -206,7 +216,7 @@ const WhiteBoard = () => {
           <button onClick={() => addBlock('text')}><BsFileEarmarkFont /> New Text</button>
           <button onClick={() => openModal('image')}><BsFileEarmarkImage /> New Image</button>
           <button onClick={() => openModal('pdf')}><BsFileEarmarkPdfFill /> New PDF</button>
-          <button>End Lesson</button>
+          <button onClick={handleEndLesson}>End Lesson</button>
         </div>
       )}
       {blocks.map(block => (

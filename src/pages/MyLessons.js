@@ -1,88 +1,108 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import getProfile from '../context/GetProfile';
 import config from '../config';
+import { BsCheckCircle, BsXCircle } from 'react-icons/bs';
+import getProfile from '../context/GetProfile';
 
-const MyLessons = () => {
-    const profile = getProfile();
-    const [lessons, setLessons] = useState([]);
+const Lessons = () => {
+    const [pendingLessons, setPendingLessons] = useState([]);
+    const [confirmedLessons, setConfirmedLessons] = useState([]);
+    const [rejectedLessons, setRejectedLessons] = useState([]);
     const [error, setError] = useState(null);
+    const profile = getProfile();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchLessons();
+    }, []);
+
+    const fetchLessons = async () => {
+        try {
+            const pendingResponse = await axios.get(`${config.apiBaseUrl}/lessons/status/1`);
+            const confirmedResponse = await axios.get(`${config.apiBaseUrl}/lessons/status/2`);
+            const rejectedResponse = await axios.get(`${config.apiBaseUrl}/lessons/status/4`);
+            setPendingLessons(pendingResponse.data);
+            setConfirmedLessons(confirmedResponse.data);
+            setRejectedLessons(rejectedResponse.data);
+        } catch (error) {
+            console.error('Ошибка при загрузке уроков:', error);
+            setError('Failed to load lessons. Please try again.');
+        }
+    };
 
     const goToWhiteBoard = (lessonId, studentId, teacherId) => {
         navigate(`/whiteboard?lessonId=${lessonId}&studentId=${studentId}&teacherId=${teacherId}`);
     };
 
-    useEffect(() => {
-        if (!profile || !profile.id) {
-            console.error('Profile or profile ID is undefined');
-            return;
+    const handleStatusUpdate = async (lessonId, statusId) => {
+        try {
+            await axios.put(`${config.apiBaseUrl}/lessons/${lessonId}/status`, { status_id: statusId });
+            fetchLessons();
+        } catch (error) {
+            console.error('Ошибка при обновлении статуса урока:', error);
+            setError('Failed to update lesson status. Please try again.');
+        }
+    };
+
+    const renderLessonCard = (lesson, showButtons) => {
+        const lessonDateTime = new Date(lesson.date_time.replace(' ', 'T'));
+        const isTeacher = profile.role_id === 2; // role_id 2 for teachers
+        const userToShow = isTeacher ? lesson.student : lesson.teacher;
+
+        if (!userToShow) {
+            return null; // Skip this lesson if userToShow is undefined
         }
 
-        const fetchLessons = async () => {
-            try {
-                const id = profile.id;
-                const response = await axios.get(`${config.apiBaseUrl}/lessons/user/${id}`);
-                setLessons(response.data || []);
-            } catch (err) {
-                console.error('Error fetching lessons:', err);
-                setError('Error fetching lessons');
-            }
-        };
 
-        fetchLessons();
-    }, [profile]);
-
-    if (error) {
-        return <div className="error-message">{error}</div>;
-    }
+        return (
+            <div key={lesson.id} className="lesson-card">
+                <div className="lesson-info">
+                    {userToShow.photo && (
+                        <img src={userToShow.photo} alt={`${userToShow.full_name}'s avatar`} className="user-photo" />
+                    )}
+                    <p><strong>{isTeacher ? 'Student' : 'Teacher'}:</strong> {userToShow.full_name}</p>
+                    <p><strong>Time:</strong> {lessonDateTime.toLocaleString()}</p>
+                    <p><strong>Duration:</strong> {lesson.duration} minutes</p>
+                </div>
+                {showButtons && profile.role_id === 2 && (
+                    <div className="buttons-container">
+                        <button onClick={() => handleStatusUpdate(lesson.id, 2)} className="accept-button">
+                            <BsCheckCircle /> Accept
+                        </button>
+                        <button onClick={() => handleStatusUpdate(lesson.id, 4)} className="reject-button">
+                            <BsXCircle /> Reject
+                        </button>
+                    </div>
+                )}
+                {lesson.status_id === 2 && (
+                    <button onClick={() => goToWhiteBoard(lesson.id, lesson.student_id, lesson.teacher_id)} className="join-button">Join</button>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="lessons-container">
             <h1 className="lessons-title">My Lessons</h1>
+            {error && <p className="error">{error}</p>}
+
+            <h2>Confirmed Lessons</h2>
             <ul className="lessons-list">
-                {lessons.length === 0 ? (
-                    <li className="no-lessons">No lessons available</li>
-                ) : (
-                    lessons.map(lesson => {
-                        const lessonDateTime = new Date(lesson.date_time);
-                        const now = new Date();
-                        const isJoinAvailable = (lessonDateTime - now) <= 60 * 60 * 1000; // 1 hour in milliseconds
+                {confirmedLessons.length ? confirmedLessons.map((lesson) => renderLessonCard(lesson, false)) : <p>No confirmed lessons.</p>}
+            </ul>
 
-                        const isTeacher = profile.role_id === 2; // role_id 2 for teachers
-                        const userToShow = isTeacher ? lesson.student : lesson.teacher;
+            <h2>Pending Lessons</h2>
+            <ul className="lessons-list">
+                {pendingLessons.length ? pendingLessons.map((lesson) => renderLessonCard(lesson, true)) : <p>No pending lessons.</p>}
+            </ul>
 
-                        if (!userToShow) {
-                            return null; // Skip this lesson if userToShow is undefined
-                        }
-
-                        return (
-                            <li key={lesson.id} className="lesson-item">
-                                <div className="lesson-card">
-                                    <div className="lesson-info">
-                                        {userToShow.photo && (
-                                            <img src={userToShow.photo} alt={`${userToShow.full_name}'s avatar`} className="user-photo" />
-                                        )}
-                                        <p><strong>{isTeacher ? 'Student' : 'Teacher'}:</strong> {userToShow.full_name}</p>
-                                        <p><strong>Time:</strong> {lessonDateTime.toLocaleString()}</p>
-                                    </div>
-                                    {isJoinAvailable && (
-                                        <button
-                                            className="join-button"
-                                            onClick={() => goToWhiteBoard(lesson.id, lesson.student_id, lesson.teacher_id)}
-                                        >
-                                            Join
-                                        </button>
-                                    )}
-                                </div>
-                            </li>
-                        );
-                    })
-                )}
+            <h2>Rejected Lessons</h2>
+            <ul className="lessons-list">
+                {rejectedLessons.length ? rejectedLessons.map((lesson) => renderLessonCard(lesson, false)) : <p>No rejected lessons.</p>}
             </ul>
         </div>
     );
 };
 
-export default MyLessons;
+export default Lessons;

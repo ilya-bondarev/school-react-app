@@ -547,6 +547,10 @@ h1 {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.lessons-container h2:not(:first-of-type) {
+  padding-top: 90px;
+}
+
 .lessons-title {
   text-align: center;
   font-size: 24px;
@@ -618,6 +622,24 @@ h1 {
 
 .join-button:hover {
   background-color: #e0a800;
+}
+
+.accept-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.accept-button:hover {
+  background-color: #218838;
+}
+
+.reject-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.reject-button:hover {
+  background-color: #c82333;
 }
 
 .no-lessons {
