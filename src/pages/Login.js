@@ -38,8 +38,8 @@ const Login = () => {
             <h2>Login</h2>
             <form onSubmit={handleLogin}>
                 <label>
-                    Username:
-                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                    Email:
+                    <input type="email" value={username} onChange={(e) => setUsername(e.target.value)} required />
                 </label>
                 <label>
                     Password:

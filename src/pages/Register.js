@@ -14,9 +14,29 @@ const Register = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    const validatePassword = (password) => {
+        // Define the complex password criteria
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        if (password.length < minLength || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+            return false;
+        }
+        return true;
+    };
+
     const handleRegister = async (e) => {
         e.preventDefault();
         setError(''); // Clear any previous errors
+
+        // Validate the password
+        if (!validatePassword(password)) {
+            setError('Password must be at least 8 characters long, and include uppercase, lowercase, number, and special character.');
+            return;
+        }
 
         try {
             const response = await axios.post(`${config.apiBaseUrl}/register`, {
@@ -34,11 +54,11 @@ const Register = () => {
             navigate('/profile');
             window.location.reload();
         } catch (error) {
-
             const errorMessage = error.response?.data.detail || 'Failed to register. Please try again later.';
             setError(errorMessage);
         }
     };
+
     const handleFileUpload = (fileName) => {
         setUploadedFileName(fileName);
     };
@@ -50,12 +70,12 @@ const Register = () => {
                 <label>
                     Uploaded Profile Photo
                     {uploadedFileName && (
-                        <img src={`${config.apiBaseUrl}/profile-photo/${uploadedFileName}`} alt="Profile" style={{ maxWidth: 50 + '%' }} />
+                        <img src={`${config.apiBaseUrl}/profile-photo/${uploadedFileName}`} alt="Profile" style={{ maxWidth: '50%' }} />
                     )}
                     <ProfilePhotoUpload onFileUpload={handleFileUpload} />
                 </label>
                 <label>
-                    Username (Email):
+                    Email:
                     <input
                         type="email"
                         value={username}
