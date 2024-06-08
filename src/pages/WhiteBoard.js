@@ -84,12 +84,12 @@ const WhiteBoard = () => {
 
   const handleEndLesson = async () => {
     try {
-        await axios.put(`${config.apiBaseUrl}/lessons/${lessonId}/status`, { status_id: 3 });
-        navigate('/lessons')
+      await axios.put(`${config.apiBaseUrl}/lessons/${lessonId}/status`, { status_id: 3 });
+      navigate('/lessons');
     } catch (error) {
-        console.error('Ошибка при обновлении статуса урока:', error);
+      console.error('Ошибка при обновлении статуса урока:', error);
     }
-};
+  };
 
   const handleMouseDown = (blockId, event) => {
     const blockIndex = blocks.findIndex(block => block.id === blockId);
@@ -103,7 +103,7 @@ const WhiteBoard = () => {
       setBlocks(currentBlocks => currentBlocks.map(b =>
         b.id === blockId ? { ...b, x: newX, y: newY } : b
       ));
-      sendUpdate('move_block', { id: blockId, x: newX, y: newY, width: block.width, height: block.height, content: block.content, contentType: block.contentType, contentUrl: block.contentUrl });
+      sendUpdate('move_block', { id: blockId, x: newX, y: newY, width: block.width, height: block.height, content: block.content, contentType: block.contentType, contentUrl: block.contentUrl, pageNumber: block.pageNumber });
     };
 
     const mouseUpHandler = () => {
@@ -130,7 +130,7 @@ const WhiteBoard = () => {
       setBlocks(currentBlocks => currentBlocks.map(b =>
         b.id === blockId ? { ...b, width: newWidth, height: newHeight } : b
       ));
-      sendUpdate('resize_block', { id: blockId, x: block.x, y: block.y, width: newWidth, height: newHeight, content: block.content, contentType: block.contentType, contentUrl: block.contentUrl });
+      sendUpdate('resize_block', { id: blockId, x: block.x, y: block.y, width: newWidth, height: newHeight, content: block.content, contentType: block.contentType, contentUrl: block.contentUrl, pageNumber: block.pageNumber });
     };
 
     const mouseUpHandler = () => {
@@ -147,7 +147,7 @@ const WhiteBoard = () => {
       b.id === blockId ? { ...b, content: newContent } : b
     ));
     const block = blocks.find(b => b.id === blockId);
-    sendUpdate('update_content', { id: blockId, x: block.x, y: block.y, width: block.width, height: block.height, content: newContent, contentType: block.contentType, contentUrl: block.contentUrl });
+    sendUpdate('update_content', { id: blockId, x: block.x, y: block.y, width: block.width, height: block.height, content: newContent, contentType: block.contentType, contentUrl: block.contentUrl, pageNumber: block.pageNumber });
   };
 
   const addBlock = (type, url) => {
@@ -159,7 +159,8 @@ const WhiteBoard = () => {
       height: 250,
       content: type === 'text' ? "На берегу пустынных волн\nСтоял он, дум великих полн,\nИ вдаль глядел. Пред ним широко\nРека неслася; бедный чёлн\nПо ней стремился одиноко." : "",
       contentType: type,
-      contentUrl: url
+      contentUrl: url,
+      pageNumber: 1
     };
     setBlocks([...blocks, newBlock]);
     sendUpdate('add_block', newBlock);
@@ -168,6 +169,34 @@ const WhiteBoard = () => {
   const delBlock = (blockId) => {
     setBlocks(currentBlocks => currentBlocks.filter(b => b.id !== blockId));
     sendUpdate('delete_block', { id: blockId });
+  };
+
+  const handleIncreaseSize = (blockId) => {
+    const block = blocks.find(b => b.id === blockId);
+    const newWidth = block.width + 50;
+    const newHeight = block.height + 50;
+    setBlocks(currentBlocks => currentBlocks.map(b =>
+      b.id === blockId ? { ...b, width: newWidth, height: newHeight } : b
+    ));
+    sendUpdate('resize_block', { id: blockId, x: block.x, y: block.y, width: newWidth, height: newHeight, content: block.content, contentType: block.contentType, contentUrl: block.contentUrl, pageNumber: block.pageNumber });
+  };
+
+  const handleDecreaseSize = (blockId) => {
+    const block = blocks.find(b => b.id === blockId);
+    const newWidth = Math.max(350, block.width - 50);
+    const newHeight = Math.max(250, block.height - 50);
+    setBlocks(currentBlocks => currentBlocks.map(b =>
+      b.id === blockId ? { ...b, width: newWidth, height: newHeight } : b
+    ));
+    sendUpdate('resize_block', { id: blockId, x: block.x, y: block.y, width: newWidth, height: newHeight, content: block.content, contentType: block.contentType, contentUrl: block.contentUrl, pageNumber: block.pageNumber });
+  };
+
+  const updatePageNumber = (blockId, newPageNumber) => {
+    setBlocks(currentBlocks => currentBlocks.map(b =>
+      b.id === blockId ? { ...b, pageNumber: newPageNumber } : b
+    ));
+    const block = blocks.find(b => b.id === blockId);
+    sendUpdate('update_page_number', { id: blockId, x: block.x, y: block.y, width: block.width, height: block.height, content: block.content, contentType: block.contentType, contentUrl: block.contentUrl, pageNumber: newPageNumber });
   };
 
   const renderContent = (block) => {
@@ -187,7 +216,7 @@ const WhiteBoard = () => {
       case 'image':
         return <img src={block.contentUrl} alt="" style={{ width: '100%', height: '100%' }} />;
       case 'pdf':
-        return <PDFViewer block={block} />;
+        return <PDFViewer block={block} updatePageNumber={updatePageNumber} />;
       default:
         return null;
     }
@@ -235,8 +264,8 @@ const WhiteBoard = () => {
         >
           {profile.role_id === 2 && (
             <div className='button-row'>
-              <button>+</button>
-              <button>-</button>
+              <button onClick={() => handleIncreaseSize(block.id)}>+</button>
+              <button onClick={() => handleDecreaseSize(block.id)}>-</button>
               <button onClick={e => delBlock(block.id)}>
                 <BsFillTrashFill />
               </button>
@@ -276,16 +305,22 @@ const WhiteBoard = () => {
   );
 };
 
-const PDFViewer = ({ block }) => {
+const PDFViewer = ({ block, updatePageNumber }) => {
   const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
   };
 
-  const goToPrevPage = () => setPageNumber(pageNumber - 1);
-  const goToNextPage = () => setPageNumber(pageNumber + 1);
+  const goToPrevPage = () => {
+    const newPageNumber = block.pageNumber - 1;
+    updatePageNumber(block.id, newPageNumber);
+  };
+
+  const goToNextPage = () => {
+    const newPageNumber = block.pageNumber + 1;
+    updatePageNumber(block.id, newPageNumber);
+  };
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -294,12 +329,12 @@ const PDFViewer = ({ block }) => {
         onLoadSuccess={onDocumentLoadSuccess}
         style={{ width: '100%', height: '100%' }}
       >
-        <Page pageNumber={pageNumber} width={block.width - 20} />
+        <Page pageNumber={block.pageNumber} width={block.width - 20} />
       </Document>
       {numPages && (
         <div style={{ marginTop: '10px' }}>
-          <button disabled={pageNumber <= 1} onClick={goToPrevPage}>Previous</button>
-          <button disabled={pageNumber >= numPages} onClick={goToNextPage}>Next</button>
+          <button disabled={block.pageNumber <= 1} onClick={goToPrevPage}>Previous</button>
+          <button disabled={block.pageNumber >= numPages} onClick={goToNextPage}>Next</button>
         </div>
       )}
     </div>
