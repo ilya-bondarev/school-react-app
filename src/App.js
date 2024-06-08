@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register'
 import WhiteBoard from './pages/WhiteBoard';
+import ArchiveBoard from './pages/ArchiveBoard'
 import MyLessons from './pages/MyLessons';
 import EditProfile from './pages/EditProfile';
 function AuthLinks() {
@@ -54,6 +55,7 @@ function App() {
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/teachers" element={<TeachersList />} />
               <Route path="/whiteboard" element={<WhiteBoard />} />
+              <Route path="/archiveboard" element={<ArchiveBoard />} />
               <Route path="/lessons" element={<MyLessons />} />
               <Route path="/" element={<TeachersList />} exact />
             </Routes>

@@ -9,6 +9,7 @@ const Lessons = () => {
     const [pendingLessons, setPendingLessons] = useState([]);
     const [confirmedLessons, setConfirmedLessons] = useState([]);
     const [rejectedLessons, setRejectedLessons] = useState([]);
+    const [archivedLessons, setArchivedLessons] = useState([]);
     const [error, setError] = useState(null);
     const profile = getProfile();
     const navigate = useNavigate();
@@ -22,9 +23,11 @@ const Lessons = () => {
             const pendingResponse = await axios.get(`${config.apiBaseUrl}/lessons/status/1`);
             const confirmedResponse = await axios.get(`${config.apiBaseUrl}/lessons/status/2`);
             const rejectedResponse = await axios.get(`${config.apiBaseUrl}/lessons/status/4`);
+            const archivedResponse = await axios.get(`${config.apiBaseUrl}/lessons/status/3`);
             setPendingLessons(pendingResponse.data);
             setConfirmedLessons(confirmedResponse.data);
             setRejectedLessons(rejectedResponse.data);
+            setArchivedLessons(archivedResponse.data);
         } catch (error) {
             console.error('Ошибка при загрузке уроков:', error);
             setError('Failed to load lessons. Please try again.');
@@ -33,6 +36,10 @@ const Lessons = () => {
 
     const goToWhiteBoard = (lessonId, studentId, teacherId) => {
         navigate(`/whiteboard?lessonId=${lessonId}&studentId=${studentId}&teacherId=${teacherId}`);
+    };
+
+    const goToArchiveBoard = (lessonId, studentId, teacherId) => {
+        navigate(`/archiveboard?lessonId=${lessonId}&studentId=${studentId}&teacherId=${teacherId}`);
     };
 
     const handleStatusUpdate = async (lessonId, statusId) => {
@@ -53,7 +60,6 @@ const Lessons = () => {
         if (!userToShow) {
             return null; // Skip this lesson if userToShow is undefined
         }
-
 
         return (
             <div key={lesson.id} className="lesson-card">
@@ -78,6 +84,9 @@ const Lessons = () => {
                 {lesson.status_id === 2 && (
                     <button onClick={() => goToWhiteBoard(lesson.id, lesson.student_id, lesson.teacher_id)} className="join-button">Join</button>
                 )}
+                {lesson.status_id === 3 && (
+                    <button onClick={() => goToArchiveBoard(lesson.id, lesson.student_id, lesson.teacher_id)} className="join-button">View Archive</button>
+                )}
             </div>
         );
     };
@@ -100,6 +109,11 @@ const Lessons = () => {
             <h2>Rejected Lessons</h2>
             <ul className="lessons-list">
                 {rejectedLessons.length ? rejectedLessons.map((lesson) => renderLessonCard(lesson, false)) : <p>No rejected lessons.</p>}
+            </ul>
+
+            <h2>Archived Lessons</h2>
+            <ul className="lessons-list">
+                {archivedLessons.length ? archivedLessons.map((lesson) => renderLessonCard(lesson, false)) : <p>No archived lessons.</p>}
             </ul>
         </div>
     );

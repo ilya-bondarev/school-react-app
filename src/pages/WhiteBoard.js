@@ -84,13 +84,14 @@ const WhiteBoard = () => {
 
   const handleEndLesson = async () => {
     try {
-      await axios.put(`${config.apiBaseUrl}/lessons/${lessonId}/status`, { status_id: 3 });
+      await axios.post(`${config.apiBaseUrl}/save-lesson/${lessonId}`);
       navigate('/lessons');
     } catch (error) {
       console.error('Ошибка при обновлении статуса урока:', error);
     }
   };
 
+  
   const handleMouseDown = (blockId, event) => {
     const blockIndex = blocks.findIndex(block => block.id === blockId);
     const block = blocks[blockIndex];
