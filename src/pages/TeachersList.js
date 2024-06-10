@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import config from '../config';
 import getProfile from '../context/GetProfile';
@@ -6,14 +7,14 @@ import getProfile from '../context/GetProfile';
 const TeachersList = () => {
     const [teachers, setTeachers] = useState([]);
     const [filteredTeachers, setFilteredTeachers] = useState([]);
-    const [minRating, setMinRating] = useState('');
-    const [maxLessons, setMaxLessons] = useState('');
+    const [minLessons, setMinLessons] = useState('');
     const [selectedTeacherId, setSelectedTeacherId] = useState(null);
     const [dateTime, setDateTime] = useState('');
     const [duration, setDuration] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const profile = getProfile();
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchTeachers() {
@@ -32,20 +33,16 @@ const TeachersList = () => {
     useEffect(() => {
         const applyFilters = () => {
             let filtered = teachers;
-
-            if (minRating !== '') {
-                filtered = filtered.filter(teacher => teacher.averageRating >= parseFloat(minRating));
+    
+            if (minLessons !== '') {
+                filtered = filtered.filter(teacher => teacher.lessons_amount >= parseInt(minLessons, 10));
             }
-
-            if (maxLessons !== '') {
-                filtered = filtered.filter(teacher => teacher.totalLessons <= parseInt(maxLessons, 10));
-            }
-
+    
             setFilteredTeachers(filtered);
         };
-
+    
         applyFilters();
-    }, [teachers, minRating, maxLessons]);
+    }, [teachers, minLessons]);
 
     const formatLessonCount = (count) => {
         if (count >= 200) {
@@ -80,8 +77,8 @@ const TeachersList = () => {
             });
 
             if (response.status === 200) {
-                alert('Lesson created successfully!');
                 closePopup();
+                navigate('/lessons')
             }
         } catch (error) {
             console.error('Ошибка при создании урока:', error);
@@ -96,23 +93,12 @@ const TeachersList = () => {
             <h1>Список учителей</h1>
             <div className="filters">
                 <label>
-                    Минимальная оценка:
-                    <input
-                        type="number"
-                        min="1"
-                        max="5"
-                        step="0.1"
-                        value={minRating}
-                        onChange={(e) => setMinRating(e.target.value)}
-                    />
-                </label>
-                <label>
-                    Максимальное количество уроков:
+                    Минимальное количество уроков:
                     <input
                         type="number"
                         min="0"
-                        value={maxLessons}
-                        onChange={(e) => setMaxLessons(e.target.value)}
+                        value={minLessons}
+                        onChange={(e) => setMinLessons(e.target.value)}
                     />
                 </label>
             </div>
@@ -123,15 +109,11 @@ const TeachersList = () => {
                         <div className="teacher-info">
                             <h3>{teacher.full_name}</h3>
                             <p>{teacher.description}</p>
-                            <p>Средняя оценка: {teacher.rating}</p>
                             <p>Проведено уроков: {formatLessonCount(teacher.lessons_amount)}</p>
                             {profile.role_id !== 2 && (
                                 <div className="buttons-container">
-                                    <button className="select-time-button" onClick={() => handleMoreDetails(teacher.id)}>
-                                        Выбрать время
-                                    </button>
                                     <button className="more-details-button" onClick={() => handleMoreDetails(teacher.id)}>
-                                        Подробнее
+                                        Выбрать время
                                     </button>
                                 </div>
                             )}
@@ -157,7 +139,8 @@ const TeachersList = () => {
                                 Продолжительность (минуты):
                                 <input
                                     type="number"
-                                    min="1"
+                                    min="30"
+                                    max="180"
                                     value={duration}
                                     onChange={(e) => setDuration(e.target.value)}
                                     required
@@ -173,7 +156,6 @@ const TeachersList = () => {
                 </div>
             )}
         </div>
-
     );
 };
 
