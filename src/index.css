@@ -575,6 +575,7 @@ h1 {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
+  margin-bottom: 25px;
   transition: transform 0.2s;
 }
 
@@ -781,6 +782,9 @@ h1 {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 3px;
+  max-width: 100%;
+  min-width: 100%;
+  min-height: 35px;
 }
 
 .edit-profile-container button {
