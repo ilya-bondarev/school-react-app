@@ -4,7 +4,7 @@ import { Document, Page } from 'react-pdf';
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import config from '../config';
-import getProfile from '../context/GetProfile';
+import useProfile from '../context/useProfile';
 import TeachersFileUpload from '../context/TeachersFileUpload';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
@@ -13,7 +13,7 @@ import { BsFillTrashFill, BsFileEarmarkPdfFill, BsFileEarmarkImage, BsFileEarmar
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const WhiteBoard = () => {
-  const profile = getProfile();
+  const { profile, loading } = useProfile();
   const [blocks, setBlocks] = useState([]);
   const [files, setFiles] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -27,7 +27,14 @@ const WhiteBoard = () => {
   const studentId = queryParams.get('studentId');
   const teacherId = queryParams.get('teacherId');
 
-  // Fetch the files from the server
+  useEffect(() => {
+    if (!loading) {
+      if (profile.id !== studentId && profile.id !== teacherId) {
+        navigate('/profile');
+      }
+    }
+  }, [loading, profile.id, studentId, teacherId, navigate]);
+
   const fetchFiles = async () => {
     try {
       const response = await fetch(`${config.apiBaseUrl}/my-files`, {
@@ -87,11 +94,10 @@ const WhiteBoard = () => {
       await axios.post(`${config.apiBaseUrl}/save-lesson/${lessonId}`);
       navigate('/lessons');
     } catch (error) {
-      console.error('Ошибка при обновлении статуса урока:', error);
+      console.error('Error updating lesson status:', error);
     }
   };
 
-  
   const handleMouseDown = (blockId, event) => {
     const blockIndex = blocks.findIndex(block => block.id === blockId);
     const block = blocks[blockIndex];
@@ -158,7 +164,7 @@ const WhiteBoard = () => {
       y: 300,
       width: 350,
       height: 250,
-      content: type === 'text' ? "На берегу пустынных волн\nСтоял он, дум великих полн,\nИ вдаль глядел. Пред ним широко\nРека неслася; бедный чёлн\nПо ней стремился одиноко." : "",
+      content: type === 'text' ? "Two roads diverged in a yellow wood,\nAnd sorry I could not travel both\nAnd be one traveler, long I stood\nAnd looked down one as far as I could\nTo where it bent in the undergrowth;" : "",
       contentType: type,
       contentUrl: url,
       pageNumber: 1
@@ -238,6 +244,10 @@ const WhiteBoard = () => {
     addBlock(fileType, url);
     closeModal();
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className='whiteboard'>

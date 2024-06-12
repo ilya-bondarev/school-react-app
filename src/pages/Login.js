@@ -21,12 +21,12 @@ const Login = () => {
 
             navigate('/profile');
             /* 
-                Обновление страницы необходимо для обновления кнопок в сайдбаре
-                Задержка для обновления нужна чтобы на сервере успел обновиться токен и не выдавало ошибку
+                Page refresh is necessary to update the buttons in the sidebar
+                Delay for update is needed so that the token has time to update on the server and does not cause an error
             */
             setTimeout(() => {
                 window.location.reload();
-            }, 500);
+            }, 1500);
         } catch (error) {
             alert('Failed to login');
             console.error(error);

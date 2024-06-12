@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       login(data.access_token, refreshToken);
     } catch (error) {
-      console.error('Ошибка при обновлении токена:', error);
+      console.error('Error refreshing token:', error);
       logout();
     }
   }, []);
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
       if (isAuthenticated) {
         refreshAccessToken();
       }
-    }, 90 * 60 * 1000); // Обновляем токен каждые 90 минут
+    }, 90 * 60 * 1000); // Refresh token every 90 minutes
     return () => clearInterval(interval);
   }, [isAuthenticated, refreshAccessToken]);
 

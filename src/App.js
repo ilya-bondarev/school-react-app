@@ -5,27 +5,27 @@ import './App.css';
 import TeachersList from './pages/TeachersList';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
-import Register from './pages/Register'
+import Register from './pages/Register';
 import WhiteBoard from './pages/WhiteBoard';
-import ArchiveBoard from './pages/ArchiveBoard'
+import ArchiveBoard from './pages/ArchiveBoard';
 import MyLessons from './pages/MyLessons';
 import EditProfile from './pages/EditProfile';
+
 function AuthLinks() {
   const { isAuthenticated } = useAuth();
   return (
     <>
       {isAuthenticated ? (
         <>
-          <Link to="/profile" className="sidebar-item">Профиль</Link>
-          <Link to="/lessons" className="sidebar-item">Мои уроки</Link>
+          <Link to="/profile" className="sidebar-item">Profile</Link>
+          <Link to="/lessons" className="sidebar-item">My Lessons</Link>
         </>
       ) : (
-        <Link to="/login" className="sidebar-item">Войти в систему</Link>
+        <Link to="/login" className="sidebar-item">Log In</Link>
       )}
     </>
   );
 }
-
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
@@ -44,7 +44,7 @@ function App() {
             </div>
 
             <AuthLinks />
-            <Link to="/teachers" className="sidebar-item">Список учителей</Link>
+            <Link to="/teachers" className="sidebar-item">Teachers List</Link>
           </div>
 
           <div className={`main-content ${collapsed ? 'collapsed' : ''}`}>

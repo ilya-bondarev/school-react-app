@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import config from '../config';
-import getProfile from '../context/GetProfile';
+import useProfile from '../context/useProfile';
 
 const TeachersList = () => {
     const [teachers, setTeachers] = useState([]);
@@ -13,7 +13,7 @@ const TeachersList = () => {
     const [duration, setDuration] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const profile = getProfile();
+    const { profile, loading: profileLoading } = useProfile();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,7 +23,7 @@ const TeachersList = () => {
                 setTeachers(response.data);
                 setFilteredTeachers(response.data);
             } catch (error) {
-                console.error('Ошибка при загрузке списка учителей:', error);
+                console.error('Error loading teachers list:', error);
             }
         }
 
@@ -33,20 +33,20 @@ const TeachersList = () => {
     useEffect(() => {
         const applyFilters = () => {
             let filtered = teachers;
-    
+
             if (minLessons !== '') {
                 filtered = filtered.filter(teacher => teacher.lessons_amount >= parseInt(minLessons, 10));
             }
-    
+
             setFilteredTeachers(filtered);
         };
-    
+
         applyFilters();
     }, [teachers, minLessons]);
 
     const formatLessonCount = (count) => {
         if (count >= 200) {
-            return 'больше 200';
+            return 'more than 200';
         }
         return count;
     };
@@ -78,22 +78,26 @@ const TeachersList = () => {
 
             if (response.status === 200) {
                 closePopup();
-                navigate('/lessons')
+                navigate('/lessons');
             }
         } catch (error) {
-            console.error('Ошибка при создании урока:', error);
+            console.error('Error creating lesson:', error);
             setError('Failed to create lesson. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
 
+    if (profileLoading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="teachers-list-container">
-            <h1>Список учителей</h1>
+            <h1>Teachers List</h1>
             <div className="filters">
                 <label>
-                    Минимальное количество уроков:
+                    Minimum number of lessons:
                     <input
                         type="number"
                         min="0"
@@ -109,25 +113,25 @@ const TeachersList = () => {
                         <div className="teacher-info">
                             <h3>{teacher.full_name}</h3>
                             <p>{teacher.description}</p>
-                            <p>Проведено уроков: {formatLessonCount(teacher.lessons_amount)}</p>
+                            <p>Lessons conducted: {formatLessonCount(teacher.lessons_amount)}</p>
                             {profile.role_id !== 2 && (
                                 <div className="buttons-container">
                                     <button className="more-details-button" onClick={() => handleMoreDetails(teacher.id)}>
-                                        Выбрать время
+                                        Select Time
                                     </button>
                                 </div>
                             )}
                         </div>
                     </li>
-                )) : <p>Учителей не найдено по текущим фильтрам.</p>}
+                )) : <p>No teachers found with the current filters.</p>}
             </ul>
             {selectedTeacherId && (
                 <div className="popup-overlay" onClick={closePopup}>
                     <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-                        <h2>Записаться на урок</h2>
+                        <h2>Sign Up for a Lesson</h2>
                         <form onSubmit={handleSignUpForLesson}>
                             <label>
-                                Дата и время:
+                                Date and Time:
                                 <input
                                     type="datetime-local"
                                     value={dateTime}
@@ -136,7 +140,7 @@ const TeachersList = () => {
                                 />
                             </label>
                             <label>
-                                Продолжительность (минуты):
+                                Duration (minutes):
                                 <input
                                     type="number"
                                     min="30"
@@ -148,10 +152,10 @@ const TeachersList = () => {
                             </label>
                             {error && <p className="error">{error}</p>}
                             <button type="submit" disabled={isLoading}>
-                                {isLoading ? 'Записываем...' : 'Записаться'}
+                                {isLoading ? 'Signing up...' : 'Sign Up'}
                             </button>
                         </form>
-                        <button className="close-button" onClick={closePopup}>Закрыть</button>
+                        <button className="close-button" onClick={closePopup}>Close</button>
                     </div>
                 </div>
             )}

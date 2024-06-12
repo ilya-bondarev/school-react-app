@@ -1,30 +1,31 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import getProfile from '../context/GetProfile';
+import useProfile from '../context/useProfile';
 import updateProfile from '../context/UpdateProfile';
 import ProfilePhotoUpload from '../context/ProfilePhotoUpload';
 import config from '../config';
 
 const EditProfile = () => {
     const navigate = useNavigate();
-    const profile = getProfile();
+    const { profile, loading } = useProfile();
     const [formData, setFormData] = useState({
         full_name: '',
         description: '',
         photo: '',
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        if (!profile) {
+        if (!loading && !profile) {
             navigate('/login');
-        } else {
+        } else if (profile) {
             setFormData({
                 full_name: profile.full_name || '',
                 description: profile.description || '',
                 photo: profile.photo || '',
             });
         }
-    }, [profile, navigate]);
+    }, [profile, loading, navigate]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -37,20 +38,27 @@ const EditProfile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         try {
             await updateProfile(formData);
             navigate('/profile');
         } catch (error) {
             console.error('Failed to update profile', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="edit-profile-container">
-            <h1>Редактировать профиль</h1>
+            <h1>Edit Profile</h1>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label htmlFor="full_name">Имя:</label>
+                    <label htmlFor="full_name">Name:</label>
                     <input
                         type="text"
                         id="full_name"
@@ -60,7 +68,7 @@ const EditProfile = () => {
                     />
                 </div>
                 <div>
-                    <label htmlFor="description">Описание:</label>
+                    <label htmlFor="description">Description:</label>
                     <textarea
                         id="description"
                         name="description"
@@ -69,16 +77,16 @@ const EditProfile = () => {
                     />
                 </div>
                 <div>
-                    <label>Фото профиля:</label>
+                    <label>Profile Photo:</label>
                     <ProfilePhotoUpload onFileUpload={handleFileUpload} />
                     {formData.photo && (
                         <div>
                             <p>Current photo:</p>
-                            <img src={`${formData.photo}`} alt="Profile" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+                            <img src={formData.photo} alt="Profile" style={{ maxWidth: '200px', maxHeight: '200px' }} />
                         </div>
                     )}
                 </div>
-                <button type="submit">Сохранить изменения</button>
+                <button type="submit" disabled={isSubmitting}>Save Changes</button>
             </form>
         </div>
     );
