@@ -29,7 +29,7 @@ const WhiteBoard = () => {
 
   useEffect(() => {
     if (!loading) {
-      if (profile.id !== studentId && profile.id !== teacherId) {
+      if (profile.id != studentId && profile.id != teacherId) {
         navigate('/profile');
       }
     }
