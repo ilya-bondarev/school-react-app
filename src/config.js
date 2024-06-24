@@ -1,5 +1,5 @@
 const config = {
-    apiBaseUrl: 'http://89.104.68.185:8000',
-  };
-  
-  export default config;  
+  apiBaseUrl: 'http://127.0.0.1:8000',
+};
+
+export default config;  
